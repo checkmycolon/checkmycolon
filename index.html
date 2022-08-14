@@ -1,110 +1,156 @@
 <!DOCTYPE html>
-<html lang="en">
-<link rel = "stylesheet" href = "style.css">
-<head>
-    <meta charset="UTF-8">
-    <title>Schedule Your Appointment</title>
-    <img src="/static/logo.png" alt = "photo"
-    width="650"
-    height="65"/>
-</head>
-<body>
-  <form id="form1">
-    <label>First name:</label><br>
-      <input type="text" id="fname" placeholder="John"><br><br>
-    <label>Last name:</label><br>
-      <input type="text" id="lname" placeholder="Doe"><br><br>
-    <label>Patient ID: </label><br>
-      <input type="text" id="patientID" placeholder="12345"><br><br>
+<html>
+  <head>
+    <title>Google Calendar API Quickstart</title>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <p>Google Calendar API Quickstart</p>
 
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
+    <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
 
-    <label for="dob">Date of Birth:</label>
-    <input type="date" id="dob" name="dob"><br><br>
+    <pre id="content" style="white-space: pre-wrap;"></pre>
 
-    <p>Reason(s) for visit: Please choose up to 3 reasons.</p>
-    <label for="problem1">Reason 1:</label>
-    <select id="problem1">
-      <option value="no">N/A</option>
-      <option value="colonCancer">Colon Cancer Screening</option>
-      <option value="hemorrhoid">Hemorrhoid</option>
-      <option value="diarrhea">Diarrhea</option>
-      <option value="constipation">Constipation</option>
-      <option value="bleeding">Rectal Bleeding</option>
-      <option value="IBS">Irritable Bowel Syndrome</option>
-      <option value="abdominal">Abdominal Pain</option>
-      <option value="acid">Acid Reflux and Heartburn</option>
-      <option value="nausea">Nausea</option>
-      <option value="vomiting">Vomiting</option>
-      <option value="swallow">Difficulty Swallowing</option>
-      <option value="malnutrition">Malnutrition/Abnormal Weight Loss</option>
-      <option value="celiac">Celiac Disease</option>
-    </select><br><br>
+    <script type="text/javascript">
+      /* exported gapiLoaded */
+      /* exported gisLoaded */
+      /* exported handleAuthClick */
+      /* exported handleSignoutClick */
 
-    <label for="problem2">Reason 2:</label>
-    <select id="problem2">
-      <option value="no">N/A</option>
-      <option value="colonCancer">Colon Cancer Screening</option>
-      <option value="hemorrhoid">Hemorrhoid</option>
-      <option value="diarrhea">Diarrhea</option>
-      <option value="constipation">Constipation</option>
-      <option value="bleeding">Rectal Bleeding</option>
-      <option value="IBS">Irritable Bowel Syndrome</option>
-      <option value="abdominal">Abdominal Pain</option>
-      <option value="acid">Acid Reflux and Heartburn</option>
-      <option value="nausea">Nausea</option>
-      <option value="vomiting">Vomiting</option>
-      <option value="swallow">Difficulty Swallowing</option>
-      <option value="malnutrition">Malnutrition/Abnormal Weight Loss</option>
-      <option value="celiac">Celiac Disease</option>
-    </select><br><br>
+      // TODO(developer): Set to client ID and API key from the Developer Console
+      const CLIENT_ID = '687443805112-31p8vir7ulq96237gvr5e2tb7ri2d7kl.apps.googleusercontent.com';
+      const API_KEY =  'AIzaSyBO-czZYXbmwxsxNycVa56ETliWKJRu7yA';
 
-    <label for="problem3">Reason 3:</label>
-    <select id="problem3">
-      <option value="no">N/A</option>
-      <option value="colonCancer">Colon Cancer Screening</option>
-      <option value="hemorrhoid">Hemorrhoid</option>
-      <option value="diarrhea">Diarrhea</option>
-      <option value="constipation">Constipation</option>
-      <option value="bleeding">Rectal Bleeding</option>
-      <option value="IBS">Irritable Bowel Syndrome</option>
-      <option value="abdominal">Abdominal Pain</option>
-      <option value="acid">Acid Reflux and Heartburn</option>
-      <option value="nausea">Nausea</option>
-      <option value="vomiting">Vomiting</option>
-      <option value="swallow">Difficulty Swallowing</option>
-      <option value="malnutrition">Malnutrition/Abnormal Weight Loss</option>
-      <option value="celiac">Celiac Disease</option>
-    </select><br><br>
+      // Discovery doc URL for APIs used by the quickstart
+      const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
 
-    <label> Appointment Options: </label><br>
-    <input type="radio" id="colonCancer" name="apptType" value="Screening">
-          <label for="colonCancer">Colon Cancer Screening: 15 minutes</label><br>
-    <input type="radio" id="consult" name="apptType" value="Consult">
-          <label for="consult">Initial Consultation: 30 minutes</label><br>
-    <input type="radio" id="followup" name="apptType" value = "Clinic">
-          <label for="followup">Follow-Up Appointment: 15 minutes</label><br>
-    <input type="radio" id="EGD" name="apptType" value="EGD">
-          <label for="EGD">EGD (Upper Endoscopy): 30 min (requires a total of 2 hours for recovery)</label><br>
-    <input type="radio" id="colonoscopy" name="apptType" value="Colonoscopy">
-          <label for="colonoscopy">Colonoscopy: 30 min (requires a total of 2 hours for recovery)</label><br><br>
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 
-    <label>Provider Selection: </label><br>
-    <input type="radio" id="Boon" name="provider" value="Boon">
-          <label for="Boon">Dr. Boon</label><br>
-    <input type="radio" id="Wong" name="provider" value="Wong">
-          <label for="Wong">Dr. Wong</label><br>
-    <input type="radio" id="Kim" name="provider" value="Kim">
-          <label for="Kim">Kim Larson, ARNP</label><br><br>
+      let tokenClient;
+      let gapiInited = false;
+      let gisInited = false;
 
-    <input type="submit" value="Submit">
+      document.getElementById('authorize_button').style.visibility = 'hidden';
+      document.getElementById('signout_button').style.visibility = 'hidden';
 
-  </form>
-  <a target="_blank" href="https://calendar.google.com/event?action=TEMPLATE&amp;tmeid=MDUxa3N1ajBuZzAxMmY1cXZyMTk0ZjVoMHAgdGFyeW5oYm9vbkBt&amp;tmsrc=tarynhboon%40gmail.com"><img border="0" src="https://www.google.com/calendar/images/ext/gc_button1_en.gif"></a>
-  <p hidden id="form2">This is hidden</p>
-  <label for="dob">Date of Birth:</label>
-  <input type="date" id="dob" name="dob"><br><br>
-  <div id="footer"><p>hello</p><p>goodbye</p></div>
-  <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%23ffffff&ctz=America%2FLos_Angeles&src=dGFyeW5oYm9vbkBnbWFpbC5jb20&src=YWRkcmVzc2Jvb2sjY29udGFjdHNAZ3JvdXAudi5jYWxlbmRhci5nb29nbGUuY29t&src=ZW4udXNhI2hvbGlkYXlAZ3JvdXAudi5jYWxlbmRhci5nb29nbGUuY29t&color=%23039BE5&color=%2333B679&color=%230B8043" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>
-  <script src="/js/index.js"></script>
-</body>
+      /**
+       * Callback after api.js is loaded.
+       */
+      function gapiLoaded() {
+        gapi.load('client', intializeGapiClient);
+      }
+
+      /**
+       * Callback after the API client is loaded. Loads the
+       * discovery doc to initialize the API.
+       */
+      async function intializeGapiClient() {
+        await gapi.client.init({
+          apiKey: API_KEY,
+          discoveryDocs: [DISCOVERY_DOC],
+        });
+        gapiInited = true;
+        maybeEnableButtons();
+      }
+
+      /**
+       * Callback after Google Identity Services are loaded.
+       */
+      function gisLoaded() {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: '', // defined later
+        });
+        gisInited = true;
+        maybeEnableButtons();
+      }
+
+      /**
+       * Enables user interaction after all libraries are loaded.
+       */
+      function maybeEnableButtons() {
+        if (gapiInited && gisInited) {
+          document.getElementById('authorize_button').style.visibility = 'visible';
+        }
+      }
+
+      /**
+       *  Sign in the user upon button click.
+       */
+      function handleAuthClick() {
+        tokenClient.callback = async (resp) => {
+          if (resp.error !== undefined) {
+            throw (resp);
+          }
+          document.getElementById('signout_button').style.visibility = 'visible';
+          document.getElementById('authorize_button').innerText = 'Refresh';
+          await listUpcomingEvents();
+        };
+
+        if (gapi.client.getToken() === null) {
+          // Prompt the user to select a Google Account and ask for consent to share their data
+          // when establishing a new session.
+          tokenClient.requestAccessToken({prompt: 'consent'});
+        } else {
+          // Skip display of account chooser and consent dialog for an existing session.
+          tokenClient.requestAccessToken({prompt: ''});
+        }
+      }
+
+      /**
+       *  Sign out the user upon button click.
+       */
+      function handleSignoutClick() {
+        const token = gapi.client.getToken();
+        if (token !== null) {
+          google.accounts.oauth2.revoke(token.access_token);
+          gapi.client.setToken('');
+          document.getElementById('content').innerText = '';
+          document.getElementById('authorize_button').innerText = 'Authorize';
+          document.getElementById('signout_button').style.visibility = 'hidden';
+        }
+      }
+
+      /**
+       * Print the summary and start datetime/date of the next ten events in
+       * the authorized user's calendar. If no events are found an
+       * appropriate message is printed.
+       */
+      async function listUpcomingEvents() {
+        let response;
+        try {
+          const request = {
+            'calendarId': 'primary',
+            'timeMin': (new Date()).toISOString(),
+            'showDeleted': false,
+            'singleEvents': true,
+            'maxResults': 10,
+            'orderBy': 'startTime',
+          };
+          response = await gapi.client.calendar.events.list(request);
+        } catch (err) {
+          document.getElementById('content').innerText = err.message;
+          return;
+        }
+
+        const events = response.result.items;
+        if (!events || events.length == 0) {
+          document.getElementById('content').innerText = 'No events found.';
+          return;
+        }
+        // Flatten to string to display
+        const output = events.reduce(
+            (str, event) => `${str}${event.summary} (${event.start.dateTime || event.start.date})\n`,
+            'Events:\n');
+        document.getElementById('content').innerText = output;
+      }
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+  </body>
 </html>
